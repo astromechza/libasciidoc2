@@ -3,15 +3,31 @@ module github.com/bytesparadise/libasciidoc
 go 1.17
 
 require (
+	// Chroma is used for code block highlighting
 	github.com/alecthomas/chroma/v2 v2.3.0
+	// Spew is a pretty printer.. we don't really need this tbh
 	github.com/davecgh/go-spew v1.1.1
+	// go-cmp is used for generating pretty diffs in test results
 	github.com/google/go-cmp v0.5.9
+
+	// ==== BUILD DEPENENCIES
+
+	// pigeon is a parser generator - its only used at build time but is needed here for versioning
 	github.com/mna/pigeon v1.1.0
+	// ginkgo is a testing framework
 	github.com/onsi/ginkgo/v2 v2.7.0
+	// gomega is another testing framework
 	github.com/onsi/gomega v1.24.2
+	// pkg errors is used for wrapping error support - this could be replaced with standard library
 	github.com/pkg/errors v0.9.1
+
+	// ==== TEST DEPENDENCIES
+
+	// logrus is for structured/leveled logging - this can be replaced now with modern GO
 	github.com/sirupsen/logrus v1.7.0
+	// Testify is a very common and trusted testing utility
 	github.com/stretchr/testify v1.8.0
+	// yaml is used for yaml frontmatter support - we could possibly remove this and push this out to the consumer to handle
 	gopkg.in/yaml.v2 v2.4.0
 )
 

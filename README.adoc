@@ -1,3 +1,5 @@
+2024-10-11 - NOTE: This is a fork of libasciidoc I'm using to slim the original library down and modernize it's Go toolchain and dependencies. This is not recommended for consumption yet and the README content below applies only to the original project.
+
 = Libasciidoc
 
 image:https://godoc.org/github.com/bytesparadise/libasciidoc?status.svg["GoDoc", link="https://godoc.org/github.com/bytesparadise/libasciidoc"]
