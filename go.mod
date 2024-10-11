@@ -5,7 +5,6 @@ go 1.17
 require (
 	github.com/alecthomas/chroma/v2 v2.3.0
 	github.com/davecgh/go-spew v1.1.1
-	github.com/felixge/fgtrace v0.1.0
 	github.com/google/go-cmp v0.5.9
 	github.com/mna/pigeon v1.1.0
 	github.com/onsi/ginkgo/v2 v2.7.0
@@ -17,7 +16,6 @@ require (
 )
 
 require (
-	github.com/DataDog/gostackparse v0.5.0 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect

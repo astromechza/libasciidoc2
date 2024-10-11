@@ -7,15 +7,11 @@ import (
 	"github.com/bytesparadise/libasciidoc"
 	"github.com/bytesparadise/libasciidoc/pkg/configuration"
 
-	// pkgprofile "github.com/pkg/profile"
-	"github.com/felixge/fgtrace"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
 
 func BenchmarkRealDocumentProcessing(b *testing.B) {
-	// defer pkgprofile.Start(pkgprofile.MemProfile).Stop()
-	defer fgtrace.Config{Dst: fgtrace.File("./tmp/fgtrace.json")}.Trace().Stop() //nolint:errcheck
 	log.SetLevel(log.ErrorLevel)
 	b.Run("demo.adoc", processDocument("./test/compat/demo.adoc"))
 	b.Run("vertx-examples.adoc", processDocument("./test/bench/vertx-examples.adoc"))
