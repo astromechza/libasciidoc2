@@ -1,6 +1,6 @@
 module github.com/bytesparadise/libasciidoc
 
-go 1.17
+go 1.23
 
 require (
 	// Chroma is used for code block highlighting
