@@ -1448,7 +1448,7 @@ a short preamble
 
 			It("front-matter on top of header", func() {
 				source := `---
-draft: true
+{"draft": true}
 ---
 				
 = A Title

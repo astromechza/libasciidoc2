@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"net/url"
@@ -11,7 +12,6 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v2"
 )
 
 // ------------------------------------------
@@ -738,19 +738,27 @@ type FrontMatter struct {
 	Attributes map[string]interface{}
 }
 
-// NewYamlFrontMatter initializes a new FrontMatter from the given `content`
-func NewYamlFrontMatter(content string) (*FrontMatter, error) {
-	attributes := make(map[string]interface{})
-	if err := yaml.Unmarshal([]byte(content), &attributes); err != nil {
-		return nil, errors.Wrapf(err, "failed to parse the yaml content in the front-matter block")
+type FrontMatterParser func(raw []byte) (map[string]interface{}, error)
+
+var DefaultFrontMatterParser FrontMatterParser = func(content []byte) (map[string]interface{}, error) {
+	var out map[string]interface{}
+	if err := json.Unmarshal(content, &out); err != nil {
+		return nil, err
 	}
-	if len(attributes) == 0 {
-		attributes = nil
+	return out, nil
+}
+
+// NewFrontMatter initializes a new FrontMatter from the given `content`. Generally this should be yaml but could
+// be replaced with another format - the default is yaml which is natively supported by Go.
+func NewFrontMatter(content string) (*FrontMatter, error) {
+	if attributes, err := DefaultFrontMatterParser([]byte(content)); err != nil {
+		return nil, errors.Wrapf(err, "failed to parse the content in the front-matter block")
+	} else {
+		if len(attributes) == 0 {
+			attributes = nil
+		}
+		return &FrontMatter{Attributes: attributes}, nil
 	}
-	// log.Debugf("new FrontMatter with attributes: %+v", attributes)
-	return &FrontMatter{
-		Attributes: attributes,
-	}, nil
 }
 
 // ------------------------------------------

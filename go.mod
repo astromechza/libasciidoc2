@@ -27,8 +27,6 @@ require (
 	github.com/sirupsen/logrus v1.7.0
 	// Testify is a very common and trusted testing utility
 	github.com/stretchr/testify v1.8.0
-	// yaml is used for yaml frontmatter support - we could possibly remove this and push this out to the consumer to handle
-	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (

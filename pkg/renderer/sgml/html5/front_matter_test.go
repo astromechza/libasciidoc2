@@ -11,7 +11,7 @@ var _ = Describe("documents with front-matter", func() {
 
 	It("should render with front-matter", func() {
 		source := `---
-description: User Manual
+{"description": "User Manual"}
 ---
 
 {description}

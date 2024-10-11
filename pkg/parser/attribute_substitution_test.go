@@ -161,7 +161,7 @@ This journey continues`
 
 		It("paragraph with attribute reference from front-matter", func() {
 			source := `---
-author: Xavier
+{"author": "Xavier"}
 ---
 
 a paragraph written by {author}.`

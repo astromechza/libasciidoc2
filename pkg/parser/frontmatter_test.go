@@ -16,8 +16,10 @@ var _ = Describe("front-matters", func() {
 
 			It("with simple attributes", func() {
 				source := `---
-title: a title
-author: Xavier
+{
+"title": "a title",
+"author": "Xavier"
+}
 ---
 
 first paragraph`
@@ -41,6 +43,7 @@ first paragraph`
 
 			It("empty front-matter", func() {
 				source := `---
+{}
 ---
 
 first paragraph`

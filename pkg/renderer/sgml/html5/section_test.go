@@ -241,7 +241,7 @@ var _ = Describe("sections", func() {
 
 		It("with numbering disabled and enabled again - case 2", func() {
 			source := `---
-draft: true
+{"draft": true}
 ---
 			
 = User Manual

@@ -1222,18 +1222,18 @@ FrontMatter <-
     &{
         return c.isFrontMatterAllowed(), nil
     }
-    frontmatter:(YamlFrontMatter) 
+    frontmatter:(ParsedFrontMatter)
     {
         return frontmatter, nil
     }
 
-YamlFrontMatter <- YamlFrontMatterDelimiter content:(YamlFrontMatterContent)? YamlFrontMatterDelimiter {
-    return types.NewYamlFrontMatter(content.(string))
+ParsedFrontMatter <- ParsedFrontMatterDelimiter content:(ParsedFrontMatterContent)? ParsedFrontMatterDelimiter {
+    return types.NewFrontMatter(content.(string))
 }
 
-YamlFrontMatterDelimiter  <- "---" Space* EOL
+ParsedFrontMatterDelimiter  <- "---" Space* EOL
 
-YamlFrontMatterContent <- ((!YamlFrontMatterDelimiter .)+)* {
+ParsedFrontMatterContent <- ((!ParsedFrontMatterDelimiter .)+)* {
         return string(c.text), nil
 }
 
