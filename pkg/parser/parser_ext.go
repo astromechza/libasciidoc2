@@ -7,15 +7,17 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
+	"github.com/davecgh/go-spew/spew"
+
 	"github.com/bytesparadise/libasciidoc/pkg/configuration"
 	"github.com/bytesparadise/libasciidoc/pkg/types"
-	"github.com/davecgh/go-spew/spew"
-	log "github.com/sirupsen/logrus"
 )
 
 func parseContent(content []byte, opts ...Option) ([]interface{}, error) {
 	p := newParser("", content, opts...)
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("parsing content from '%s' entrypoint", p.entrypoint)
 	}
 	result, err := p.parse(g)
@@ -62,7 +64,7 @@ func (p *parser) setup(g *grammar) (err error) {
 // TODO: return immediately if end of doc was reached? (would simplify the grammar, avoiding to check for !EOF before parsing a new element)
 func (p *parser) next() (val interface{}, err error) {
 	if p.pt.offset == len(p.data) {
-		log.Debugf("reached end of document")
+		log.Debug("reached end of document")
 		return nil, nil
 	}
 	if p.recover {
@@ -121,7 +123,7 @@ func (p *parser) next() (val interface{}, err error) {
 const suffixTrackingKey = "element_suffix_tracking"
 
 func (c *current) trackElement(element interface{}) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("---tracking element of type '%T' at pos=%s text='%s'", element, c.pos.String(), string(c.text))
 	}
 	c.globalStore[suffixTrackingKey] = rune(c.text[len(c.text)-1])
@@ -133,7 +135,7 @@ func (c *current) isPrecededBySpace() bool {
 		result := unicode.IsSpace(r) || unicode.IsControl(r)
 		return result
 	}
-	log.Debugf("---is not preceded by space (no previous character)")
+	log.Debug("---is not preceded by space (no previous character)")
 	return false
 }
 
@@ -174,7 +176,7 @@ func (c *current) isSingleQuotedTextAllowed() bool {
 			r != '}'
 		return result
 	}
-	log.Debugf("---single quoted text is allowed (no previous character)")
+	log.Debug("---single quoted text is allowed (no previous character)")
 	return true
 }
 
@@ -184,13 +186,13 @@ func (c *current) isPrecededByAlphanum() bool {
 		result := unicode.IsLetter(r) || unicode.IsNumber(r)
 		return result
 	}
-	log.Debugf("---is not preceded by alphanum (no previous character)")
+	log.Debug("---is not preceded by alphanum (no previous character)")
 	return false
 }
 
 // verifies that the content does not end with a space
 func validateSingleQuoteElements(elements []interface{}) (bool, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("checking that there is no space at the end of:\n%s", spew.Sdump(elements))
 	}
 	if len(elements) == 0 {
@@ -217,7 +219,7 @@ func sectionEnabled() Option {
 // in which case some grammar rules need to be disabled
 func (c *current) isSectionEnabled() bool {
 	enabled, found := c.globalStore[rawSectionEnabledKey].(bool)
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.Debugf("raw sections enabled: %t", found && enabled)
 	// }
 	return found && enabled
@@ -229,7 +231,7 @@ const withinDelimitedBlockKey = "within_delimited_block"
 // in which case some grammar rules need to be disabled
 func (c *current) isWithinDelimitedBlock() bool {
 	w, found := c.globalStore[withinDelimitedBlockKey].(bool)
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.Debugf("checking if within delimited block: %t/%t", found, w)
 	// }
 	return found && w
@@ -256,7 +258,7 @@ func (c *current) hasUserMacro(name string) bool {
 		// log.Debugf("user macro '%s' registered: %t", name, found)
 		return found
 	}
-	// log.Debugf("no user macro registered")
+	// log.Debug("no user macro registered")
 	return false
 }
 

@@ -5,9 +5,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bytesparadise/libasciidoc/pkg/types"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 func (r *sgmlRenderer) renderTable(ctx *context, t *types.Table) (string, error) {

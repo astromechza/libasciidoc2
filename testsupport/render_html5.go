@@ -2,13 +2,13 @@ package testsupport
 
 import (
 	"bytes"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 	"os"
 	"strings"
 
 	"github.com/bytesparadise/libasciidoc"
 	"github.com/bytesparadise/libasciidoc/pkg/configuration"
 	"github.com/bytesparadise/libasciidoc/pkg/types"
-	log "github.com/sirupsen/logrus"
 )
 
 // RenderHTML renders the HTML body using the given source
@@ -25,11 +25,11 @@ func RenderHTMLWithMetadata(actual string, settings ...configuration.Setting) (s
 	resultWriter := bytes.NewBuffer(nil)
 	metadata, err := libasciidoc.Convert(contentReader, resultWriter, config)
 	if err != nil {
-		log.Error(err)
+		log.Errorf(err.Error())
 		return "", types.Metadata{}, err
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
-		log.Debug(resultWriter.String())
+	if log.DebugEnabled() {
+		log.Debugf(resultWriter.String())
 	}
 	return resultWriter.String(), metadata, nil
 }
@@ -38,7 +38,7 @@ func RenderHTMLWithMetadata(actual string, settings ...configuration.Setting) (s
 func RenderHTMLFromFile(filename string, settings ...configuration.Setting) (string, types.Metadata, error) {
 	info, err := os.Stat(filename)
 	if err != nil {
-		log.Error(err)
+		log.Errorf(err.Error())
 		return "", types.Metadata{}, err
 	}
 
@@ -50,18 +50,18 @@ func RenderHTMLFromFile(filename string, settings ...configuration.Setting) (str
 	config := configuration.NewConfiguration(allSettings...)
 	f, err := os.Open(filename)
 	if err != nil {
-		log.Error(err)
+		log.Errorf(err.Error())
 		return "", types.Metadata{}, err
 	}
 	defer func() { f.Close() }()
 	resultWriter := bytes.NewBuffer(nil)
 	metadata, err := libasciidoc.Convert(f, resultWriter, config)
 	if err != nil {
-		log.Error(err)
+		log.Errorf(err.Error())
 		return "", types.Metadata{}, err
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
-		log.Debug(resultWriter.String())
+	if log.DebugEnabled() {
+		log.Debugf(resultWriter.String())
 	}
 	return resultWriter.String(), metadata, nil
 }

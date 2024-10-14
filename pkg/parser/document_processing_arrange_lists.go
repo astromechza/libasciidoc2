@@ -1,10 +1,10 @@
 package parser
 
 import (
-	"github.com/bytesparadise/libasciidoc/pkg/types"
-
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 // ArrangeLists pipeline task which consists join list elements into lists
@@ -31,7 +31,7 @@ func arrangeLists(f types.DocumentFragment) types.DocumentFragment {
 		log.Debugf("skipping list elements arrangement: %v", f.Error)
 		return f
 	}
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.WithField("pipeline_task", "arrange_lists").Debugf("arranging list elements: %s", spew.Sdump(f.Elements...))
 	// }
 	elements, err := arrangeListElements(f.Elements)
@@ -39,7 +39,7 @@ func arrangeLists(f types.DocumentFragment) types.DocumentFragment {
 		return types.NewErrorFragment(f.Position, err)
 	}
 	// result := types.NewDocumentFragment(f.Position, elements...)
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.WithField("pipeline_task", "arrange_lists").Debugf("arranged lists: %s", spew.Sdump(result))
 	// }
 	f.Elements = elements
@@ -80,7 +80,7 @@ func doArrangeListElements(elements []interface{}) (interface{}, error) {
 
 content:
 	for _, element := range elements {
-		// if log.IsLevelEnabled(log.DebugLevel) {
+		// if log.IsLevelEnabled(slog.LevelDebug) {
 		// 	log.Debugf("arranging element of type '%T'", element)
 		// }
 		// lookup the parent block which can add the given element
@@ -135,7 +135,7 @@ func (s *listStack) push(l *types.List) error {
 		}
 	}
 	s.stack = append(s.stack, l)
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.Debugf("added list to stack (len=%d)", len(s.stack))
 	// }
 	return nil
@@ -160,7 +160,7 @@ func (s *listStack) pop() *types.List {
 }
 
 func (s *listStack) parentFor(element interface{}) *types.List {
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.Debugf("looking-up parent for %s", spew.Sdump(element))
 	// }
 	if c, ok := element.(*types.ListContinuation); ok {

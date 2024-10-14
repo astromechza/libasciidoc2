@@ -7,9 +7,9 @@ import (
     "strconv"
     "strings"
     "unicode"
+    "github.com/bytesparadise/libasciidoc/pkg/log"
     "github.com/bytesparadise/libasciidoc/pkg/types"
 
-    log "github.com/sirupsen/logrus"
     "github.com/davecgh/go-spew/spew"
 )
 
@@ -351,7 +351,7 @@ AttributeDeclarationValueElement <-
         / Space
         / AttributeReference
     ) { 
-        if log.IsLevelEnabled(log.DebugLevel) {
+        if log.DebugEnabled() {
             log.Debugf("new AttributeDeclarationValueElement: %s", spew.Sdump(element))
         }
         return element, nil
@@ -2478,7 +2478,6 @@ SinglelineCommentContent <- AnyChars
 TypographicQuote <- 
     // escaped
     `\'` &[\pL] {
-        //log.Debug("matched escaped apostrophe")
         return types.NewStringElement(`'`) // retain the apostrophe, but discard the `\` escape char
     }
     /
@@ -2487,7 +2486,6 @@ TypographicQuote <-
         return c.isSubstitutionEnabled(Replacements), nil
     }
     &{
-        //log.Debugf("TypographicQuote at pos %s", c.pos.String())
         return c.isPrecededByAlphanum(), nil
     }
     `'` &[\pL] {
@@ -2789,7 +2787,7 @@ Punctuation <-
 
 // this is a fall-back rule in case all preceeding rules failed to match the current content.
 AnyChar <- [^\r\n] { 
-        if log.IsLevelEnabled(log.DebugLevel) {
+        if log.DebugEnabled() {
             log.Debugf("matching anychar '%s' at position %v", string(c.text), c.pos.String())
         }
         return string(c.text), nil
@@ -2854,7 +2852,6 @@ Space <- [\t ] {
     }
 
 Spaces <- [\t ]+ {
-        // log.Debug("matched multiple spaces")
         return string(c.text), nil
     }
 

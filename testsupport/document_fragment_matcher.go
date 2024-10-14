@@ -2,6 +2,7 @@ package testsupport
 
 import (
 	"fmt"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 // MatchDocumentFragment a custom matcher to verify that a document matches the given expectation
@@ -30,7 +30,7 @@ func (m *documentFragmentMatcher) Match(actual interface{}) (success bool, err e
 		return false, errors.Errorf("MatchDocumentFragment matcher expects a 'types.DocumentFragment' (actual: %T)", actual)
 	}
 	if diff := cmp.Diff(m.expected, actual, opts...); diff != "" {
-		if log.IsLevelEnabled(log.DebugLevel) {
+		if log.DebugEnabled() {
 			log.Debugf("actual document fragment:\n%s", spew.Sdump(actual))
 			log.Debugf("expected document fragment:\n%s", spew.Sdump(m.expected))
 		}

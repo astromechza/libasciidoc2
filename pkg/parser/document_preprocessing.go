@@ -9,11 +9,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bytesparadise/libasciidoc/pkg/configuration"
-	"github.com/bytesparadise/libasciidoc/pkg/types"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/bytesparadise/libasciidoc/pkg/configuration"
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 // Preprocess reads line by line to look-up and process file inclusions and conditionals (`ifdef`, `ifndef` and `ifeval`)
@@ -23,7 +25,7 @@ func Preprocess(source io.Reader, config *configuration.Configuration, opts ...O
 }
 
 func preprocess(ctx *ParseContext, source io.Reader) (string, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("preprocessing file inclusions in %s with leveloffset=%s", ctx.filename, spew.Sdump(ctx.levelOffsets))
 	}
 	b := &builder{
@@ -40,7 +42,7 @@ func preprocess(ctx *ParseContext, source io.Reader) (string, error) {
 			// content of line was not relevant in the context of preparsing (ie, it's a regular line), so let's keep it as-is
 			b.Write(line)
 		} else {
-			// if log.IsLevelEnabled(log.DebugLevel) {
+			// if log.IsLevelEnabled(slog.LevelDebug) {
 			// 	log.Debugf("checking element of type '%T'", element)
 			// }
 			switch e := element.(type) {
@@ -200,7 +202,7 @@ func (c *conditions) pop() bool {
 }
 
 func (c *conditions) eval() bool {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("evaluating %s", spew.Sdump(c.elements))
 	}
 	for _, e := range c.elements {
@@ -224,7 +226,7 @@ func contentOf(ctx *ParseContext, incl *types.FileInclusion) (string, bool, erro
 	}
 	result := &strings.Builder{}
 	scanner := bufio.NewScanner(bufio.NewReader(f))
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("reading %s", filename)
 	}
 	if lr, ok, err := lineRanges(incl); err != nil {
@@ -241,12 +243,12 @@ func contentOf(ctx *ParseContext, incl *types.FileInclusion) (string, bool, erro
 		}
 	} else {
 		if err := readAll(scanner, result); err != nil {
-			log.Error(err)
+			log.Errorf(err.Error())
 			return "", false, errors.Errorf("Unresolved directive in %s - %s", ctx.filename, incl.RawText)
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		log.Error(err)
+		log.Errorf(err.Error())
 		return "", false, errors.Errorf("Unresolved directive in %s - %s", ctx.filename, incl.RawText)
 	}
 	// cloning the context to avoid altering the original as we process recursively embedded file inclusions
@@ -258,7 +260,7 @@ func contentOf(ctx *ParseContext, incl *types.FileInclusion) (string, bool, erro
 	if lvl, found := incl.Attributes.GetAsString(types.AttrLevelOffset); found {
 		offset, err := strconv.Atoi(lvl)
 		if err != nil {
-			log.Error(err)
+			log.Errorf(err.Error())
 			return "", false, errors.Errorf("Unresolved directive in %s - %s", ctx.filename, incl.RawText)
 		}
 		if strings.HasPrefix(lvl, "+") || strings.HasPrefix(lvl, "-") {
@@ -267,7 +269,7 @@ func contentOf(ctx *ParseContext, incl *types.FileInclusion) (string, bool, erro
 			ctx.levelOffsets = []*levelOffset{absoluteOffset(offset)}
 		}
 	}
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.Debugf("content of '%s':\n%s", absPath, result.String())
 	// }
 	return result.String(), IsAsciidoc(absPath), nil
@@ -279,7 +281,7 @@ func (l levelOffsets) apply(s *types.RawSection) string {
 	for _, offset := range l {
 		offset.apply(s)
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("applied offsets to section: level is now %d", s.Level)
 	}
 	return s.Stringify()
@@ -329,7 +331,7 @@ func lineRanges(incl *types.FileInclusion) (types.LineRanges, bool, error) {
 		if err != nil {
 			return types.LineRanges{}, false, err
 		}
-		if log.IsLevelEnabled(log.DebugLevel) {
+		if log.DebugEnabled() {
 			log.Debugf("line ranges to include: %s", spew.Sdump(lr))
 		}
 		return types.NewLineRanges(lr), true, nil
@@ -341,7 +343,7 @@ func lineRanges(incl *types.FileInclusion) (types.LineRanges, bool, error) {
 // a corresponding `TagRanges` (or `false` if parsing failed to invalid input)
 func tagRanges(incl *types.FileInclusion) (types.TagRanges, bool, error) {
 	if tagRanges, found := incl.Attributes.GetAsString(types.AttrTagRanges); found {
-		if log.IsLevelEnabled(log.DebugLevel) {
+		if log.DebugEnabled() {
 			log.Debugf("tag ranges to include: %v", spew.Sdump(tagRanges))
 		}
 		tr, err := Parse("", []byte(tagRanges), Entrypoint("TagRanges"))
@@ -474,9 +476,9 @@ func open(path string) (*os.File, string, func(), error) {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return nil, "", func() {
-			log.Debugf("restoring current working dir to: %s", wd)
+			log.Debugf(fmt.Sprintf("restoring current working dir to: %s", wd))
 			if err := os.Chdir(wd); err != nil { // restore the previous working directory
-				log.WithError(err).Error("failed to restore previous working directory")
+				log.Errorf("failed to restore previous working directory: %v", err)
 			}
 		}, err
 	}
@@ -487,7 +489,7 @@ func open(path string) (*os.File, string, func(), error) {
 		return nil, "", func() {
 			log.Debugf("restoring current working dir to: %s", wd)
 			if err := os.Chdir(wd); err != nil { // restore the previous working directory
-				log.WithError(err).Error("failed to restore previous working directory")
+				log.Errorf("failed to restore previous working directory: %v", err)
 			}
 		}, err
 	}
@@ -498,17 +500,17 @@ func open(path string) (*os.File, string, func(), error) {
 		return nil, absPath, func() {
 			log.Debugf("restoring current working dir to: %s", wd)
 			if err := os.Chdir(wd); err != nil { // restore the previous working directory
-				log.WithError(err).Error("failed to restore previous working directory")
+				log.Errorf("failed to restore previous working directory: %v", err)
 			}
 		}, err
 	}
 	return f, absPath, func() {
 		log.Debugf("restoring current working dir to: %s", wd)
 		if err := os.Chdir(wd); err != nil { // restore the previous working directory
-			log.WithError(err).Error("failed to restore previous working directory")
+			log.Errorf("failed to restore previous working directory: %v", err)
 		}
 		if err := f.Close(); err != nil {
-			log.WithError(err).Errorf("failed to close file '%s'", absPath)
+			log.Errorf("failed to close file '%s': %v", absPath, err)
 		}
 	}, nil
 }

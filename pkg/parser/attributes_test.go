@@ -1,12 +1,14 @@
 package parser_test
 
 import (
+	"log/slog"
 	"strings"
+
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 
 	"github.com/bytesparadise/libasciidoc/pkg/parser"
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 	. "github.com/bytesparadise/libasciidoc/testsupport"
-	log "github.com/sirupsen/logrus"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -791,7 +793,7 @@ var _ = DescribeTable("invalid block attributes",
 	func(source string) {
 		// given
 		// do not show parse errors in the logs for this test
-		_, reset := ConfigureLogger(log.FatalLevel)
+		_, reset := ConfigureLogger(slog.LevelError + 1)
 		defer reset()
 		content := strings.NewReader(source + "\n")
 		// when parsing only (ie, no substitution applied)

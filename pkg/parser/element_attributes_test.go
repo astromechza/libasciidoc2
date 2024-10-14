@@ -1,9 +1,10 @@
 package parser_test
 
 import (
+	"log/slog"
+
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 	. "github.com/bytesparadise/libasciidoc/testsupport"
-	"github.com/sirupsen/logrus"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -371,7 +372,7 @@ a paragraph`
 		Context("standalone attributes", func() {
 
 			It("single standalone attribute", func() {
-				_, restoreLogger := ConfigureLogger(logrus.FatalLevel)
+				_, restoreLogger := ConfigureLogger(slog.LevelError)
 				defer restoreLogger()
 				source := `[.a_role]
 `
@@ -380,7 +381,7 @@ a paragraph`
 			})
 
 			It("multiple standalone attributes", func() {
-				_, restoreLogger := ConfigureLogger(logrus.FatalLevel)
+				_, restoreLogger := ConfigureLogger(slog.LevelError)
 				defer restoreLogger()
 				source := `[.a_role]
 [[ID]]
@@ -390,7 +391,7 @@ a paragraph`
 			})
 
 			It("multiple standalone attributes after a paragraph", func() {
-				_, restoreLogger := ConfigureLogger(logrus.FatalLevel)
+				_, restoreLogger := ConfigureLogger(slog.LevelError)
 				defer restoreLogger()
 				source := `a paragraph
 			

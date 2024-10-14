@@ -3,13 +3,15 @@ package sgml
 import (
 	"strings"
 
-	"github.com/bytesparadise/libasciidoc/pkg/types"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 func (r *sgmlRenderer) renderLiteralBlock(ctx *context, b *types.DelimitedBlock) (string, error) {
-	log.Debugf("rendering literal block")
+	log.Debug("rendering literal block")
 	content, err := r.renderElements(ctx, b.Elements)
 	if err != nil {
 		return "", errors.Wrap(err, "unable to render literal block content")

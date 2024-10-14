@@ -2,6 +2,7 @@ package parser_test
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -10,7 +11,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	log "github.com/sirupsen/logrus"
 )
 
 var _ = Describe("file inclusions", func() {
@@ -764,7 +764,7 @@ package includes
 	Context("in final documents", func() {
 
 		It("should include adoc file without leveloffset from local file", func() {
-			logs, reset := ConfigureLogger(log.WarnLevel)
+			logs, reset := ConfigureLogger(slog.LevelWarn)
 			defer reset()
 			source := "include::../../test/includes/chapter-a.adoc[]"
 			expected := &types.Document{
@@ -789,11 +789,11 @@ package includes
 			Expect(err).NotTo(HaveOccurred())
 			Expect(result).To(MatchDocument(expected))
 			// verify no error/warning in logs
-			Expect(logs).ToNot(ContainAnyMessageWithLevels(log.ErrorLevel, log.WarnLevel))
+			Expect(logs).ToNot(ContainAnyMessageWithLevels(slog.LevelError, slog.LevelWarn))
 		})
 
 		It("should include adoc file with leveloffset", func() {
-			logs, reset := ConfigureLogger(log.WarnLevel)
+			logs, reset := ConfigureLogger(slog.LevelWarn)
 			defer reset()
 			source := "include::../../test/includes/chapter-a.adoc[leveloffset=+1]"
 			title := []interface{}{
@@ -835,7 +835,7 @@ package includes
 			}
 			Expect(ParseDocument(source)).To(MatchDocument(expected))
 			// verify no error/warning in logs
-			Expect(logs).ToNot(ContainAnyMessageWithLevels(log.ErrorLevel, log.WarnLevel))
+			Expect(logs).ToNot(ContainAnyMessageWithLevels(slog.LevelError, slog.LevelWarn))
 		})
 
 		It("should include file with attribute in path", func() {
@@ -1635,7 +1635,7 @@ ____`
 			Context("quoted", func() {
 
 				It("with single line", func() {
-					logs, reset := ConfigureLogger(log.WarnLevel)
+					logs, reset := ConfigureLogger(slog.LevelWarn)
 					defer reset()
 					source := `include::../../test/includes/chapter-a.adoc[lines="1"]`
 					expected := &types.Document{
@@ -1651,7 +1651,7 @@ ____`
 					}
 					Expect(ParseDocument(source)).To(MatchDocument(expected))
 					// verify no error/warning in logs
-					Expect(logs).ToNot(ContainAnyMessageWithLevels(log.ErrorLevel, log.WarnLevel))
+					Expect(logs).ToNot(ContainAnyMessageWithLevels(slog.LevelError, slog.LevelWarn))
 				})
 
 				It("with multiple lines", func() {
@@ -1774,7 +1774,7 @@ ____`
 		Context("with tag ranges", func() {
 
 			It("with single tag", func() {
-				logs, reset := ConfigureLogger(log.WarnLevel)
+				logs, reset := ConfigureLogger(slog.LevelWarn)
 				defer reset()
 				source := `include::../../test/includes/tag-include.adoc[tag=section]`
 				title := []interface{}{
@@ -1807,11 +1807,11 @@ ____`
 				}
 				Expect(ParseDocument(source)).To(MatchDocument(expected))
 				// verify no error/warning in logs
-				Expect(logs).ToNot(ContainAnyMessageWithLevels(log.ErrorLevel, log.WarnLevel))
+				Expect(logs).ToNot(ContainAnyMessageWithLevels(slog.LevelError, slog.LevelWarn))
 			})
 
 			It("with surrounding tag", func() {
-				logs, reset := ConfigureLogger(log.WarnLevel)
+				logs, reset := ConfigureLogger(slog.LevelWarn)
 				defer reset()
 				source := `include::../../test/includes/tag-include.adoc[tag=doc]`
 				title := []interface{}{
@@ -1853,12 +1853,12 @@ ____`
 				}
 				Expect(ParseDocument(source)).To(MatchDocument(expected))
 				// verify no error/warning in logs
-				Expect(logs).ToNot(ContainAnyMessageWithLevels(log.ErrorLevel, log.WarnLevel))
+				Expect(logs).ToNot(ContainAnyMessageWithLevels(slog.LevelError, slog.LevelWarn))
 			})
 
 			It("with unclosed tag", func() {
 				// setup logger to write in a buffer so we can check the output
-				logs, reset := ConfigureLogger(log.WarnLevel)
+				logs, reset := ConfigureLogger(slog.LevelWarn)
 				defer reset()
 				source := `include::../../test/includes/tag-include-unclosed.adoc[tag=unclosed]`
 				expected := &types.Document{
@@ -1881,7 +1881,7 @@ ____`
 				}
 				Expect(ParseDocument(source)).To(MatchDocument(expected))
 				// verify error in logs
-				Expect(logs).To(ContainJSONLog(log.WarnLevel, "detected unclosed tag 'unclosed' starting at line 6 of include file: ../../test/includes/tag-include-unclosed.adoc"))
+				Expect(logs).To(ContainJSONLog(slog.LevelWarn, "detected unclosed tag 'unclosed' starting at line 6 of include file: ../../test/includes/tag-include-unclosed.adoc"))
 			})
 
 			It("with unknown tag", func() {

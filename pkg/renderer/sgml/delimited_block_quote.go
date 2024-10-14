@@ -1,9 +1,10 @@
 package sgml
 
 import (
-	"github.com/bytesparadise/libasciidoc/pkg/types"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 func (r *sgmlRenderer) renderQuoteBlock(ctx *context, b *types.DelimitedBlock) (string, error) {

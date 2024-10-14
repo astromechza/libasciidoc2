@@ -5,14 +5,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bytesparadise/libasciidoc/pkg/types"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 func (r *sgmlRenderer) renderDocumentDetails(ctx *context) (string, error) {
 	if !ctx.attributes.Has(types.AttrAuthors) {
-		log.Debugf("no authors to render")
+		log.Debug("no authors to render")
 		return "", nil
 	}
 	authors, err := r.renderDocumentAuthorsDetails(ctx)

@@ -6,7 +6,7 @@ import (
 	"sync"
 	texttemplate "text/template"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 )
 
 type sgmlRenderer struct {

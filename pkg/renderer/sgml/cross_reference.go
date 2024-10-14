@@ -4,15 +4,16 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 func (r *sgmlRenderer) renderInternalCrossReference(ctx *context, xref *types.InternalCrossReference) (string, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("rendering cross reference with ID: %s", spew.Sdump(xref.ID))
 	}
 	var label string

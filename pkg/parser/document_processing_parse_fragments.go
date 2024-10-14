@@ -2,11 +2,14 @@ package parser
 
 import (
 	"io"
+	"log/slog"
 	"time"
 
-	"github.com/bytesparadise/libasciidoc/pkg/types"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/davecgh/go-spew/spew"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 func ParseDocumentFragments(ctx *ParseContext, source io.Reader, done <-chan interface{}) <-chan types.DocumentFragment {
@@ -23,14 +26,14 @@ func ParseDocumentFragments(ctx *ParseContext, source io.Reader, done <-chan int
 			resultStream <- types.NewErrorFragment(types.Position{}, err)
 			return
 		}
-		log.WithField("pipeline_task", "document_parsing").Debug("start of document parsing")
+		log.Default.With("pipeline_task", "document_parsing").Debug("start of document parsing")
 	parsing:
 		for {
-			// if log.IsLevelEnabled(log.DebugLevel) {
+			// if log.IsLevelEnabled(slog.LevelDebug) {
 			// 	log.Debugf("starting new fragment at line %d", p.pt.line)
 			// }
 			start := time.Now()
-			if log.IsLevelEnabled(log.DebugLevel) {
+			if log.DebugEnabled() {
 				log.Debugf("parsing fragment starting at p.pt.line:%d / p.cur.pos.line:%d", p.pt.line, p.cur.pos.line)
 			}
 			startOffset := p.pt.offset
@@ -41,7 +44,7 @@ func ParseDocumentFragments(ctx *ParseContext, source io.Reader, done <-chan int
 				End:   endOffset,
 			}
 			if err != nil {
-				log.WithError(err).Error("error while parsing")
+				log.Default.With(slog.Any("err", err)).Error("error while parsing")
 				resultStream <- types.NewErrorFragment(p, err)
 				break parsing
 			}
@@ -56,7 +59,7 @@ func ParseDocumentFragments(ctx *ParseContext, source io.Reader, done <-chan int
 			} else {
 				f.Elements = []interface{}{element}
 			}
-			if log.IsLevelEnabled(log.DebugLevel) {
+			if log.DebugEnabled() {
 				log.Debugf("parsed fragment:\n%s", spew.Sdump(f))
 			}
 			log.Debugf("time to parse fragment at %d: %d microseconds", f.Position.Start, time.Since(start).Microseconds())
@@ -89,7 +92,7 @@ func (c *current) disableFrontMatterRule() {
 
 func (c *current) isDocumentHeaderAllowed() bool {
 	allowed, found := c.globalStore[documentHeaderKey].(bool)
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.Debugf("checking if DocumentHeader is allowed: %t", found && allowed && !c.isWithinDelimitedBlock())
 	// }
 	return found && allowed && !c.isWithinDelimitedBlock()
@@ -108,7 +111,7 @@ func (c *current) disableDocumentHeaderRule(element interface{}) {
 const blockAttributesKey = "block_attributes"
 
 func (c *current) storeBlockAttributes(attributes types.Attributes) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("storing block attributes in global store: %s", spew.Sdump(attributes))
 	}
 	c.globalStore[blockAttributesKey] = attributes

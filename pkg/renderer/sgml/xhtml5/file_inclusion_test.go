@@ -1,6 +1,7 @@
 package xhtml5_test
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/bytesparadise/libasciidoc/pkg/configuration"
@@ -9,13 +10,12 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	log "github.com/sirupsen/logrus"
 )
 
 var _ = Describe("file inclusions", func() {
 
 	It("should include adoc file without leveloffset from local file", func() {
-		logs, reset := ConfigureLogger(log.WarnLevel)
+		logs, reset := ConfigureLogger(slog.LevelWarn)
 		defer reset()
 		lastUpdated := time.Now()
 		source := "include::../../../../test/includes/grandchild-include.adoc[]"
@@ -48,11 +48,11 @@ var _ = Describe("file inclusions", func() {
 			},
 		}))
 		// verify no error/warning in logs
-		Expect(logs).ToNot(ContainAnyMessageWithLevels(log.ErrorLevel, log.WarnLevel))
+		Expect(logs).ToNot(ContainAnyMessageWithLevels(slog.LevelError, slog.LevelWarn))
 	})
 
 	It("should include adoc file without leveloffset from relative file", func() {
-		logs, reset := ConfigureLogger(log.WarnLevel)
+		logs, reset := ConfigureLogger(slog.LevelWarn)
 		defer reset()
 		source := "include::../../../../../test/includes/grandchild-include.adoc[]"
 		expected := `<div class="sect1">
@@ -70,7 +70,7 @@ var _ = Describe("file inclusions", func() {
 		Expect(RenderXHTML(source, configuration.WithFilename("tmp/foo.adoc"))).
 			To(MatchHTML(expected))
 		// verify no error/warning in logs
-		Expect(logs).ToNot(ContainAnyMessageWithLevels(log.ErrorLevel, log.WarnLevel))
+		Expect(logs).ToNot(ContainAnyMessageWithLevels(slog.LevelError, slog.LevelWarn))
 	})
 
 	It("should include grandchild content with relative offset", func() {
@@ -713,7 +713,7 @@ func helloworld() {
 		})
 
 		It("file inclusion with unclosed tag", func() {
-			logs, reset := ConfigureLogger(log.WarnLevel)
+			logs, reset := ConfigureLogger(slog.LevelWarn)
 			defer reset()
 			source := `include::../../../../test/includes/tag-include-unclosed.adoc[tag=unclosed]`
 			expected := `<div class="paragraph">
@@ -725,7 +725,7 @@ func helloworld() {
 `
 			Expect(RenderXHTML(source)).To(MatchHTML(expected))
 			// verify error in logs
-			Expect(logs).To(ContainJSONLog(log.WarnLevel, "detected unclosed tag 'unclosed' starting at line 6 of include file: ../../../../test/includes/tag-include-unclosed.adoc"))
+			Expect(logs).To(ContainJSONLog(slog.LevelWarn, "detected unclosed tag 'unclosed' starting at line 6 of include file: ../../../../test/includes/tag-include-unclosed.adoc"))
 		})
 
 		It("file inclusion with no tag", func() {

@@ -1,11 +1,11 @@
 package testsupport
 
 import (
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 	"strings"
 
 	"github.com/bytesparadise/libasciidoc/pkg/configuration"
 	"github.com/bytesparadise/libasciidoc/pkg/parser"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/pkg/errors"
 )
@@ -27,7 +27,7 @@ func PreparseDocument(source string, options ...interface{}) (string, error) {
 		}
 	}
 	result, err := parser.Preprocess(strings.NewReader(source), configuration.NewConfiguration(settings...), opts...)
-	if log.IsLevelEnabled(log.DebugLevel) && err == nil {
+	if log.DebugEnabled() && err == nil {
 		log.Debugf("preparsed document:\n%s", result)
 	}
 	return result, err

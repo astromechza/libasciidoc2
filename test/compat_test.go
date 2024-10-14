@@ -2,6 +2,7 @@ package test_test
 
 import (
 	"bytes"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,7 +15,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	log "github.com/sirupsen/logrus"
 )
 
 var autocrlf string

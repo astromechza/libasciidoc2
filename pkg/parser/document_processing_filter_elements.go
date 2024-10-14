@@ -1,11 +1,11 @@
 package parser
 
 import (
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 	"github.com/bytesparadise/libasciidoc/pkg/types"
-	log "github.com/sirupsen/logrus"
 )
 
-// Filter removes all blocks that should not appear in the final document:
+// FilterOut removes all blocks that should not appear in the final document:
 // - blank lines (except in delimited blocks)
 // - empty preambles
 // - single line comments and comment blocks

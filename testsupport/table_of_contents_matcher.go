@@ -2,13 +2,13 @@ package testsupport
 
 import (
 	"fmt"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/google/go-cmp/cmp"
 	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 // MatchTableOfContents a custom matcher to verify that a TableOfContents matches the given expectation
@@ -29,7 +29,7 @@ func (m *tableOfContentsMatcher) Match(actual interface{}) (success bool, err er
 		return false, errors.Errorf("MatchDocumentFragment matcher expects a '*types.TableOfContents' (actual: %T)", actual)
 	}
 	if diff := cmp.Diff(m.expected, actual, opts...); diff != "" {
-		if log.IsLevelEnabled(log.DebugLevel) {
+		if log.DebugEnabled() {
 			log.Debugf("actual table of contents:\n%s", spew.Sdump(actual))
 			log.Debugf("expected table of contents:\n%s", spew.Sdump(m.expected))
 		}

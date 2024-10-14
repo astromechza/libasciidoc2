@@ -7,12 +7,13 @@ import (
 	"strings"
 	texttemplate "text/template"
 
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/bytesparadise/libasciidoc/pkg/configuration"
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 func Render(doc *types.Document, config *configuration.Configuration, output io.Writer, tmpls Templates) (types.Metadata, error) {
@@ -32,8 +33,8 @@ func Render(doc *types.Document, config *configuration.Configuration, output io.
 	}
 	ctx := newContext(doc, config)
 
-	// if log.IsLevelEnabled(log.DebugLevel) {
-	// 	log.Debugf("rendering document of type '%s'\n%s", ctx.Attributes.GetAsStringWithDefault(types.AttrDocType, "article"), spew.Sdump(ctx.Attributes))
+	// if log.IsLevelEnabled(slog.LevelDebug) {
+	// 	log.Debug("rendering document of type '%s'\n%s", ctx.Attributes.GetAsStringWithDefault(types.AttrDocType, "article"), spew.Sdump(ctx.Attributes))
 	// }
 
 	// metadata to be returned to the caller
@@ -89,7 +90,7 @@ elements:
 		return metadata, errors.Wrap(err, "unable to render fenced block content")
 	}
 	if ctx.config.WrapInHTMLBodyElement {
-		log.Debugf("Rendering full document...")
+		log.Debug("Rendering full document...")
 		tmpl, err := r.article()
 		if err != nil {
 			return metadata, errors.Wrapf(err, "unable to render full document")
@@ -129,7 +130,7 @@ elements:
 			return metadata, errors.Wrapf(err, "unable to render full document")
 		}
 	} else {
-		log.Debugf("Rendering document body...")
+		log.Debug("Rendering document body...")
 		_, err = output.Write([]byte(renderedContent))
 		if err != nil {
 			return metadata, errors.Wrapf(err, "unable to render full document")
@@ -415,7 +416,7 @@ func (r *sgmlRenderer) renderDocumentBody(ctx *context, source []interface{}, to
 		elements = source
 	}
 
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("rendering elements:\n%s", spew.Sdump(elements))
 	}
 	buff := &strings.Builder{}

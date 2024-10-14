@@ -5,8 +5,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/davecgh/go-spew/spew"
-	log "github.com/sirupsen/logrus"
 )
 
 // ------------------------------------------
@@ -246,7 +247,7 @@ func (a Attributes) AddAll(others Attributes) Attributes {
 }
 
 func toAttributesWithMapping(attrs interface{}, mapping map[string]string) Attributes {
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.Debugf("processing attributes with mapping on\n%s", spew.Sdump(attrs))
 	// }
 	if attrs, ok := attrs.(Attributes); ok {
@@ -330,7 +331,6 @@ type PositionalAttribute struct {
 // NewPositionalAttribute returns a new attribute who key is the position in the group
 func NewPositionalAttribute(value interface{}) (*PositionalAttribute, error) {
 	value = Reduce(value, strings.TrimSpace)
-	// log.Debugf("new positional attribute: '%s'", value)
 	return &PositionalAttribute{
 		Value: value,
 	}, nil
@@ -346,7 +346,7 @@ type Options []interface{} // more explicit than `[]interface{}`, and to bypass 
 // NewOptionAttribute sets a boolean option.
 func NewOptionAttribute(option interface{}) (*Attribute, error) {
 	option = Reduce(option, strings.TrimSpace)
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("new option attribute: '%s'", spew.Sdump(option))
 	}
 	return &Attribute{
@@ -389,7 +389,7 @@ func NewIDAttribute(value interface{}) (*Attribute, error) {
 // with some `key` replacements/grouping (Role->Roles and Option->Options)
 // returns the new `Attributes` if the current instance was `nil`
 func (a Attributes) Set(key string, value interface{}) Attributes {
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.Debugf("setting attribute %s=%s", key, spew.Sdump(value))
 	// }
 	if a == nil {

@@ -3,10 +3,11 @@ package sgml
 import (
 	"strings"
 
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 func (r *sgmlRenderer) renderSection(ctx *context, s *types.Section) (string, error) {

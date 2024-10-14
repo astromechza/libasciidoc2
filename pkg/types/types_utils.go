@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 )
 
 // merge merge string elements together, keeping
@@ -166,7 +166,7 @@ func stringify(element interface{}) string {
 
 // TrimTrailingSpaces trims trailing spaces on the last element (if applicable)
 func TrimTrailingSpaces(content []interface{}) []interface{} {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("trimming trailing spaces on content of type '%T'", content)
 	}
 	if len(content) > 0 {

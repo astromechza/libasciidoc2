@@ -1,12 +1,13 @@
 package sgml
 
 import (
-	"github.com/bytesparadise/libasciidoc/pkg/types"
 	"github.com/pkg/errors"
+
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 func (r *sgmlRenderer) renderPreamble(ctx *context, p *types.Preamble) (string, error) {
-	// log.Debugf("rendering preamble...")
+	// log.Debug("rendering preamble...")
 	// the <div id="preamble"> wrapper is only necessary
 	// if the document has a section 0
 

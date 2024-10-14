@@ -1,6 +1,7 @@
 package libasciidoc_test
 
 import (
+	"log/slog"
 	"os"
 	"strings"
 	"time"
@@ -12,23 +13,9 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	log "github.com/sirupsen/logrus"
 )
 
 var _ = Describe("documents", func() {
-
-	var level log.Level
-
-	BeforeEach(func() {
-		// turn down the logger to `warn` to avoid the noise
-		level = log.GetLevel()
-		log.SetLevel(log.WarnLevel)
-	})
-
-	AfterEach(func() {
-		// restore the logger level
-		log.SetLevel(level)
-	})
 
 	lastUpdated := time.Now()
 
@@ -111,7 +98,7 @@ var _ = Describe("documents", func() {
 
 			It("should render demo-shorter.adoc", func() {
 				// given
-				// log.SetLevel(log.InfoLevel)
+				// log.SetLevel(slog.LevelInfo)
 				_, err := os.Stat("test/compat/demo-shorter.adoc")
 				Expect(err).NotTo(HaveOccurred())
 
@@ -181,7 +168,7 @@ var _ = Describe("documents", func() {
 		Context("with body only", func() {
 
 			It("should render valid manpage", func() {
-				_, reset := ConfigureLogger(log.WarnLevel)
+				_, reset := ConfigureLogger(slog.LevelWarn)
 				defer reset()
 				source := `= eve(1)
 Andrew Stanton
@@ -237,7 +224,7 @@ Free use of this software is granted under the terms of the MIT License.</p>
 		Context("full", func() {
 
 			It("should render valid manpage", func() {
-				_, reset := ConfigureLogger(log.WarnLevel)
+				_, reset := ConfigureLogger(slog.LevelWarn)
 				defer reset()
 				source := `= eve(1)
 Andrew Stanton
@@ -323,7 +310,7 @@ Last updated {{ .LastUpdated }}
 			})
 
 			It("should render invalid manpage as article", func() {
-				logs, reset := ConfigureLogger(log.WarnLevel)
+				logs, reset := ConfigureLogger(slog.LevelWarn)
 				defer reset()
 				source := `= eve(1)
 Andrew Stanton
@@ -414,8 +401,8 @@ Last updated {{ .LastUpdated }}
 					}{
 						LastUpdated: lastUpdated.Format(configuration.LastUpdatedFormat),
 					}))
-				Expect(logs).To(ContainJSONLog(log.WarnLevel, "changing doctype to 'article' because problems were found in the document"))
-				Expect(logs).To(ContainJSONLog(log.ErrorLevel, "manpage document is missing the 'Name' section"))
+				Expect(logs).To(ContainJSONLog(slog.LevelWarn, "changing doctype to 'article' because problems were found in the document"))
+				Expect(logs).To(ContainJSONLog(slog.LevelError, "manpage document is missing the 'Name' section"))
 			})
 
 			It("should render html", func() {
@@ -515,7 +502,7 @@ Last updated {{ .LastUpdated }}
 			})
 
 			It("should fail given bogus backend", func() {
-				_, reset := ConfigureLogger(log.WarnLevel)
+				_, reset := ConfigureLogger(slog.LevelWarn)
 				defer reset()
 				source := `= Story
 

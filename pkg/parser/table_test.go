@@ -3,10 +3,11 @@ package parser_test
 import (
 	"strings"
 
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/bytesparadise/libasciidoc/pkg/parser"
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 	. "github.com/bytesparadise/libasciidoc/testsupport"
-	log "github.com/sirupsen/logrus"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

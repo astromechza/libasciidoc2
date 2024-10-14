@@ -1,6 +1,7 @@
 package testsupport
 
 import (
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 	"strings"
 
 	"github.com/bytesparadise/libasciidoc/pkg/configuration"
@@ -8,7 +9,6 @@ import (
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 // ParseDocument parses the actual value into a Document
@@ -32,7 +32,7 @@ func ParseDocument(actual string, options ...interface{}) (*types.Document, erro
 	if err != nil {
 		return nil, err
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("preparsed document:\n%s", p)
 	}
 	return parser.ParseDocument(strings.NewReader(p), c, opts...)

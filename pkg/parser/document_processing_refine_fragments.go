@@ -4,12 +4,14 @@ import (
 	"io"
 	"time"
 
-	"github.com/bytesparadise/libasciidoc/pkg/types"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
-// Parses the content of the conplex elements in the incoming fragments
+// RefineFragments Parses the content of the conplex elements in the incoming fragments
 // (for example, some delimited blocks may contain paragraphs, etc.)
 func RefineFragments(ctx *ParseContext, source io.Reader, done <-chan interface{}, fragmentStream <-chan types.DocumentFragment) chan types.DocumentFragment {
 	resultStream := make(chan types.DocumentFragment, bufferSize)
@@ -39,7 +41,7 @@ func refineFragment(ctx *ParseContext, f types.DocumentFragment) types.DocumentF
 			return types.NewErrorFragment(f.Position, err)
 		}
 	}
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.Debugf("refined fragment:\n%s", spew.Sdump(f))
 	// }
 	log.Debugf("time to refine fragment at %d: %d microseconds", f.Position.Start, time.Since(start).Microseconds())
@@ -47,7 +49,7 @@ func refineFragment(ctx *ParseContext, f types.DocumentFragment) types.DocumentF
 }
 
 func refineElement(ctx *ParseContext, element interface{}) error {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("reparsing element of type '%T'", element)
 	}
 	switch e := element.(type) {
@@ -101,7 +103,7 @@ func reparseTable(ctx *ParseContext, t *types.Table) error {
 }
 
 func reparseTableCell(ctx *ParseContext, c *types.TableCell) error {
-	log.Debugf("reparsing content of table cell")
+	log.Debug("reparsing content of table cell")
 	switch c.Format {
 	case "a":
 		opts := append(ctx.opts, Entrypoint("DelimitedBlockElements"))

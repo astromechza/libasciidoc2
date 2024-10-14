@@ -7,11 +7,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/bytesparadise/libasciidoc/pkg/renderer/sgml"
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 
 	"github.com/davecgh/go-spew/spew"
-	log "github.com/sirupsen/logrus"
 )
 
 // ApplySubstitutions parses the "inline content" of the incomgin fragment elements
@@ -57,7 +58,7 @@ func applySubstitutionsOnElements(ctx *ParseContext, elements []interface{}, opt
 }
 
 func applySubstitutionsOnElement(ctx *ParseContext, element interface{}, opts ...Option) error {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("applying substitutions on element of type '%T'", element)
 	}
 	switch b := element.(type) {
@@ -189,7 +190,7 @@ func applySubstitutionsOnTable(ctx *ParseContext, t *types.Table, opts ...Option
 }
 
 func applySubstitutionsOnWithLocation(ctx *ParseContext, b types.WithLocation, opts ...Option) error {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("applying substitution on WithLocation of type '%T'", b)
 	}
 	// attributes
@@ -398,7 +399,7 @@ func replaceAttributeRefsInSlicedValue(ctx *ParseContext, elements []interface{}
 			result = append(result, e) // unchanged
 		}
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("replaced attribute refs: %s", spew.Sdump(result))
 	}
 	return types.Reduce(result), nil
@@ -434,7 +435,7 @@ func extractMarkdownQuoteAttribution(elements []interface{}) ([]interface{}, str
 	if len(elements) == 0 {
 		return elements, ""
 	}
-	log.Debugf("attempting to extract markdown-style quote block author")
+	log.Debug("attempting to extract markdown-style quote block author")
 	if l, ok := elements[len(elements)-1].(*types.RawLine); ok {
 		a, err := ParseReader("", strings.NewReader(l.Content), Entrypoint("MarkdownQuoteAttribution"))
 		// assume that the last line is not an author attribution if an error occurred
@@ -508,7 +509,7 @@ func replaceAttributeRefsInElementsAndReparse(ctx *ParseContext, elements []inte
 	}
 	// if attribute ref was found, reparse content (if subs)
 	if replaced && subs != nil {
-		if log.IsLevelEnabled(log.DebugLevel) {
+		if log.DebugEnabled() {
 			log.Debugf("reparsing (phase2) %s", spew.Sdump(elements))
 		}
 		return parseWithSubstitutions(elements, subs, append(opts, Entrypoint("NormalGroup"))...)
@@ -611,7 +612,7 @@ func parseWithSubstitutions(content interface{}, subs *substitutions, opts ...Op
 	if len(serialized) == 0 {
 		return nil, nil
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("parsing '%s' with '%s' substitutions", serialized, subs.toString())
 	}
 	// stats := Stats{}
@@ -623,12 +624,12 @@ func parseWithSubstitutions(content interface{}, subs *substitutions, opts ...Op
 	if err != nil {
 		return nil, err
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("parsed content:\n%s", spew.Sdump(elements))
 	}
-	if log.IsLevelEnabled(log.InfoLevel) {
+	if log.InfoEnabled() {
 		log.Infof("parsed '%s' with '%s' substitutions", serialized, subs.toString())
-		// log.Infof("stats:")
+		// log.Info("stats:")
 		// log.Infof(" expr count: %v", stats.ExprCnt)
 		// rules := make([]string, 0, len(stats.ChoiceAltCnt))
 		// for rule := range stats.ChoiceAltCnt {
@@ -652,7 +653,7 @@ func parseWithSubstitutions(content interface{}, subs *substitutions, opts ...Op
 }
 
 func serialize(content interface{}) ([]byte, *placeholders, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("serializing:\n%v", spew.Sdump(content))
 	}
 	placeholders := newPlaceholders()
@@ -677,7 +678,7 @@ func serialize(content interface{}) ([]byte, *placeholders, error) {
 				result.WriteString(p.String())
 			}
 		}
-		// if log.IsLevelEnabled(log.DebugLevel) {
+		// if log.DebugEnabled() {
 		// 	log.Debugf("serialized lines: '%s'\nplaceholders: %v", result.Bytes(), spew.Sdump(placeholders.elements))
 		// }
 		return result.Bytes(), placeholders, nil
@@ -687,7 +688,7 @@ func serialize(content interface{}) ([]byte, *placeholders, error) {
 }
 
 func serializePlainText(content interface{}) (string, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("serializing plaintext:\n%v", spew.Sdump(content))
 	}
 	switch content := content.(type) {
@@ -719,7 +720,7 @@ func serializePlainText(content interface{}) (string, error) {
 				return "", fmt.Errorf("unexpected type of content to serialize as plain text: %T", element)
 			}
 		}
-		if log.IsLevelEnabled(log.DebugLevel) {
+		if log.DebugEnabled() {
 			log.Debugf("serialized plaintext: '%s'", result.Bytes())
 		}
 		return result.String(), nil

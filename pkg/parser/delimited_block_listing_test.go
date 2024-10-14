@@ -1,11 +1,11 @@
 package parser_test
 
 import (
+	"log/slog"
 	"strings"
 
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 	. "github.com/bytesparadise/libasciidoc/testsupport"
-	log "github.com/sirupsen/logrus"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -1208,7 +1208,7 @@ and <more text> on the +
 				})
 
 				It("should fail when substitution is unknown", func() {
-					logs, reset := ConfigureLogger(log.ErrorLevel)
+					logs, reset := ConfigureLogger(slog.LevelError)
 					defer reset()
 					s := strings.ReplaceAll(source, "$SUBS", "unknown")
 					expected := &types.Document{
@@ -1220,7 +1220,7 @@ and <more text> on the +
 						},
 					}
 					Expect(ParseDocument(s)).To(MatchDocument(expected))
-					Expect(logs).To(ContainJSONLogWithOffset(log.ErrorLevel, 33, 182, "unsupported substitution: 'unknown'"))
+					Expect(logs).To(ContainJSONLogWithOffset(slog.LevelError, 33, 182, "unsupported substitution: 'unknown'"))
 				})
 			})
 

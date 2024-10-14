@@ -3,6 +3,7 @@
 package libasciidoc
 
 import (
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 	"io"
 	"os"
 	"strings"
@@ -15,7 +16,6 @@ import (
 	"github.com/bytesparadise/libasciidoc/pkg/validator"
 
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -83,9 +83,9 @@ func Convert(source io.Reader, output io.Writer, config *configuration.Configura
 		for _, problem := range problems {
 			switch problem.Severity {
 			case validator.Error:
-				log.Error(problem.Message)
+				log.Errorf(problem.Message)
 			case validator.Warning:
-				log.Warn(problem.Message)
+				log.Warnf(problem.Message)
 			}
 		}
 	}

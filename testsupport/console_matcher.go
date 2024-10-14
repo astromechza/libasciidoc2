@@ -4,13 +4,14 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 	"io"
+	"log/slog"
 	"os"
 	"strings"
 
 	"github.com/onsi/gomega/types"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 // ConfigureLogger configures the logger to write to a `Readable`.
@@ -23,30 +24,24 @@ var IncludeStdOut = func(t *ConsoleOutput) {
 	t.out = os.Stdout
 }
 
-func ConfigureLogger(level log.Level, opts ...TeeOption) (*ConsoleOutput, func()) {
+func ConfigureLogger(level slog.Level, opts ...TeeOption) (*ConsoleOutput, func()) {
 	t := NewConsoleOutput()
 	for _, apply := range opts {
 		apply(t)
 	}
-	if level == log.DebugLevel {
+	if level == slog.LevelDebug {
 		t.out = os.Stdout // assume tee to stdout is needed too
 	}
-	if level == log.DebugLevel {
-		t.out = os.Stdout // assume tee to stdout is needed too
-	}
-	log.SetOutput(t)
-	fmtr := log.StandardLogger().Formatter
-	log.SetFormatter(&log.JSONFormatter{
-		DisableTimestamp: true,
-	})
-	oldLevel := log.GetLevel()
-	log.SetLevel(level)
-
-	return t, func() {
-		log.SetOutput(os.Stdout)
-		log.SetFormatter(fmtr)
-		log.SetLevel(oldLevel)
-	}
+	log.Default = slog.New(slog.NewJSONHandler(t, &slog.HandlerOptions{
+		Level: level,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == slog.TimeKey {
+				return slog.Attr{}
+			}
+			return a
+		},
+	}))
+	return t, log.Reset
 }
 
 func NewConsoleOutput() *ConsoleOutput {
@@ -78,7 +73,7 @@ func (t ConsoleOutput) Content() io.Reader {
 // ---------------------------
 
 // ContainJSONLog a custom Matcher to verify that a message at a given level was logged
-func ContainJSONLog(level log.Level, msg string) types.GomegaMatcher {
+func ContainJSONLog(level slog.Level, msg string) types.GomegaMatcher {
 	return &containMessageMatcher{
 		level:       level,
 		msg:         msg,
@@ -88,7 +83,7 @@ func ContainJSONLog(level log.Level, msg string) types.GomegaMatcher {
 }
 
 // ContainJSONLogWithOffset a custom Matcher to verify that a message with offset position and at a given level was logged
-func ContainJSONLogWithOffset(level log.Level, startOffset int, endOffset int, msg string) types.GomegaMatcher {
+func ContainJSONLogWithOffset(level slog.Level, startOffset int, endOffset int, msg string) types.GomegaMatcher {
 	return &containMessageMatcher{
 		level:       level,
 		msg:         msg,
@@ -98,7 +93,7 @@ func ContainJSONLogWithOffset(level log.Level, startOffset int, endOffset int, m
 }
 
 type containMessageMatcher struct {
-	level       log.Level
+	level       slog.Level
 	msg         string
 	startOffset float64
 	endOffset   float64
@@ -154,14 +149,14 @@ func (m *containMessageMatcher) NegatedFailureMessage(_ interface{}) (message st
 // ---------------------------
 
 // ContainAnyMessageWithLevels a custom Matcher to verify that no message with the any of the given levels was logged
-func ContainAnyMessageWithLevels(level log.Level, otherLevels ...log.Level) types.GomegaMatcher {
+func ContainAnyMessageWithLevels(level slog.Level, otherLevels ...slog.Level) types.GomegaMatcher {
 	return &containAnyMessageMatcher{
-		levels: append([]log.Level{level}, otherLevels...),
+		levels: append([]slog.Level{level}, otherLevels...),
 	}
 }
 
 type containAnyMessageMatcher struct {
-	levels []log.Level
+	levels []slog.Level
 }
 
 func (m *containAnyMessageMatcher) Match(actual interface{}) (success bool, err error) {

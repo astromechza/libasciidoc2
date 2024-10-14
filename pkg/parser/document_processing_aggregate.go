@@ -1,11 +1,12 @@
 package parser
 
 import (
+	"log/slog"
 	"time"
 
-	"github.com/bytesparadise/libasciidoc/pkg/types"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 // Aggregate pipeline task which organizes the sections in hierarchy, and
@@ -35,7 +36,7 @@ func aggregate(ctx *ParseContext, fragmentStream <-chan types.DocumentFragment) 
 	}
 	for f := range fragmentStream {
 		if f.Error != nil {
-			log.WithField("start_offset", f.Position.Start).WithField("end_offset", f.Position.End).Error(f.Error)
+			log.Default.With(slog.Int("start_offset", f.Position.Start), slog.Int("end_offset", f.Position.End)).Error(f.Error.Error())
 			continue
 		}
 		start := time.Now()
@@ -109,7 +110,7 @@ func aggregate(ctx *ParseContext, fragmentStream <-chan types.DocumentFragment) 
 }
 
 func resolveCrossReferences(element interface{}, attrs *contextAttributes) error {
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.Debugf("resolving cross references in element of type '%T'", element)
 	// }
 	switch e := element.(type) {
@@ -178,7 +179,7 @@ func insertPreamble(doc *types.Document) {
 	// or if all elements are AttributeDeclaration/AttributeReset and nothing else
 	// then no preamble to insert
 	if preamble == nil || !preamble.HasContent() {
-		log.Debugf("no preamble to insert")
+		log.Debug("no preamble to insert")
 		return
 	}
 	// now, insert the preamble instead of the 'n' blocks that belong to the preamble

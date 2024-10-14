@@ -3,15 +3,16 @@ package xhtml5_test
 import (
 	"bytes"
 	"strings"
+	"testing"
+
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 
 	"github.com/bytesparadise/libasciidoc"
 	"github.com/bytesparadise/libasciidoc/pkg/configuration"
 	"github.com/bytesparadise/libasciidoc/pkg/types"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	log "github.com/sirupsen/logrus"
-
-	"testing"
 
 	_ "github.com/bytesparadise/libasciidoc/testsupport"
 )
@@ -31,8 +32,8 @@ func RenderXHTMLWithMetadata(actual string, settings ...configuration.Setting) (
 	if err != nil {
 		return "", types.Metadata{}, err
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
-		log.Debug(resultWriter.String())
+	if log.DebugEnabled() {
+		log.Debugf(resultWriter.String())
 	}
 	return resultWriter.String(), metadata, nil
 }

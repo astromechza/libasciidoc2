@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bytesparadise/libasciidoc/pkg/types"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/davecgh/go-spew/spew"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 const (
@@ -125,7 +127,7 @@ func newSubstitutions(b types.WithElements) (*substitutions, error) {
 		}
 	}
 
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("substitutions to apply on block of type '%T': %s", b, spew.Sdump(result))
 	}
 	return result, nil

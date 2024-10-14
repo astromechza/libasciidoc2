@@ -4,10 +4,10 @@ import (
 	"io"
 
 	"github.com/bytesparadise/libasciidoc/pkg/configuration"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 
 	"github.com/davecgh/go-spew/spew"
-	log "github.com/sirupsen/logrus"
 )
 
 const bufferSize = 10
@@ -39,7 +39,7 @@ func ParseDocument(r io.Reader, config *configuration.Configuration, opts ...Opt
 	if len(footnotes.Notes) > 0 {
 		doc.Footnotes = footnotes.Notes
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("parsed document:\n%s", spew.Sdump(doc))
 	}
 	return doc, nil

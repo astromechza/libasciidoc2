@@ -28,7 +28,7 @@ func (r *sgmlRenderer) renderInlineElements(ctx *context, elements []interface{}
 			buf.WriteString(renderedElement)
 		}
 	}
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.Debugf("rendered inline elements: '%s'", buf.String())
 	// }
 	return buf.String(), nil

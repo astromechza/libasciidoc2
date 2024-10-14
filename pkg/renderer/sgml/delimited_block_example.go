@@ -5,9 +5,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bytesparadise/libasciidoc/pkg/types"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 func (r *sgmlRenderer) renderExampleBlock(ctx *context, b *types.DelimitedBlock) (string, error) {
@@ -90,7 +92,7 @@ func (r *sgmlRenderer) renderExampleParagraph(ctx *context, p *types.Paragraph) 
 }
 
 func (r *sgmlRenderer) renderLiteralParagraph(ctx *context, p *types.Paragraph) (string, error) {
-	log.Debugf("rendering literal paragraph")
+	log.Debug("rendering literal paragraph")
 	content, err := r.renderElements(ctx, p.Elements)
 	if err != nil {
 		return "", err

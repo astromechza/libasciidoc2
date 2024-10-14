@@ -1,8 +1,8 @@
 package parser
 
 import (
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 	"github.com/bytesparadise/libasciidoc/pkg/types"
-	log "github.com/sirupsen/logrus"
 )
 
 func CollectFootnotes(n *types.Footnotes, done <-chan interface{}, fragmentStream <-chan types.DocumentFragment) chan types.DocumentFragment {
@@ -24,11 +24,11 @@ func CollectFootnotes(n *types.Footnotes, done <-chan interface{}, fragmentStrea
 
 func collectFootnotes(n *types.Footnotes, f types.DocumentFragment) types.DocumentFragment {
 	if f.Error != nil {
-		log.Debugf("skipping footnotes")
+		log.Debug("skipping footnotes")
 		return f
 	}
 	for _, e := range f.Elements {
-		if log.IsLevelEnabled(log.DebugLevel) {
+		if log.DebugEnabled() {
 			log.Debugf("collecting footnotes in element of type '%T'", e)
 		}
 		if e, ok := e.(types.WithFootnotes); ok {

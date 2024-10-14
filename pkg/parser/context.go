@@ -3,10 +3,12 @@ package parser
 import (
 	"sync"
 
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
+	"github.com/davecgh/go-spew/spew"
+
 	"github.com/bytesparadise/libasciidoc/pkg/configuration"
 	"github.com/bytesparadise/libasciidoc/pkg/types"
-	"github.com/davecgh/go-spew/spew"
-	log "github.com/sirupsen/logrus"
 )
 
 type ParseContext struct {
@@ -19,7 +21,7 @@ type ParseContext struct {
 }
 
 func NewParseContext(config *configuration.Configuration, options ...Option) *ParseContext {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("new parser context with attributes: %s", spew.Sdump(config.Attributes))
 	}
 	opts := []Option{
@@ -113,7 +115,7 @@ func (a *contextAttributes) getAsIntWithDefault(k string, defaultValue int) int 
 func (a *contextAttributes) set(k string, v interface{}) {
 	a.mutex.RLock() // TODO: needed? each go routine has its own context
 	defer a.mutex.RUnlock()
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("setting context attribute: %s -> %s", k, spew.Sdump(v))
 	}
 	a.attributes[k] = v

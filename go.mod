@@ -23,8 +23,6 @@ require (
 
 	// ==== TEST DEPENDENCIES
 
-	// logrus is for structured/leveled logging - this can be replaced now with modern GO
-	github.com/sirupsen/logrus v1.7.0
 	// Testify is a very common and trusted testing utility
 	github.com/stretchr/testify v1.8.0
 )

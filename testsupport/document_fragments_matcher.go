@@ -2,13 +2,13 @@ package testsupport
 
 import (
 	"fmt"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
 
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/google/go-cmp/cmp"
 	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 // MatchDocumentFragments a custom matcher to verify that a document matches the given expectation
@@ -29,7 +29,7 @@ func (m *documentFragmentsMatcher) Match(actual interface{}) (success bool, err 
 		return false, errors.Errorf("MatchDocumentFragments matcher expects a '[]types.DocumentFragment' (actual: %T)", actual)
 	}
 	if diff := cmp.Diff(m.expected, actual, opts...); diff != "" {
-		if log.IsLevelEnabled(log.DebugLevel) {
+		if log.DebugEnabled() {
 			log.Debugf("actual document fragments:\n%s", spew.Sdump(actual))
 			log.Debugf("expected document fragments:\n%s", spew.Sdump(m.expected))
 		}

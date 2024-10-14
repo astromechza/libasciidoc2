@@ -5,10 +5,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/bytesparadise/libasciidoc/pkg/types"
 
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 func RenderPlainText(element interface{}, opts ...Option) (string, error) {
@@ -50,7 +51,7 @@ type plaintextRenderer struct {
 }
 
 func (r *plaintextRenderer) render(element interface{}) (string, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("rendering plain string for element of type %T", element)
 	}
 	switch e := element.(type) {
@@ -100,7 +101,7 @@ func (r *plaintextRenderer) renderInlineElements(elements []interface{}) (string
 			buf.WriteString(renderedElement)
 		}
 	}
-	// if log.IsLevelEnabled(log.DebugLevel) {
+	// if log.IsLevelEnabled(slog.LevelDebug) {
 	// 	log.Debugf("rendered inline elements: '%s'", buf.String())
 	// }
 	return buf.String(), nil

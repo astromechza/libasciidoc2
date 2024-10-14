@@ -9,9 +9,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 // ------------------------------------------
@@ -118,7 +119,7 @@ elements:
 			// expect DocumentHeader to be positioned after optional FrontMatter and blanklines in-between
 			continue
 		default:
-			log.Debugf("no header in document")
+			log.Debug("no header in document")
 			break elements
 		}
 	}
@@ -310,9 +311,7 @@ func NewDocumentHeader(title []interface{}, ar interface{}, extraAttrs []interfa
 	if len(elements) > 0 {
 		header.Elements = elements
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
-		log.Debugf("new doc header: %s", spew.Sdump(header))
-	}
+	log.Debugf("new doc header: %s", spew.Sdump(header))
 	return header, nil
 }
 
@@ -430,7 +429,7 @@ type DocumentAuthors []*DocumentAuthor
 
 // NewDocumentAuthors converts the given authors into an array of `DocumentAuthor`
 func NewDocumentAuthors(authors ...interface{}) (DocumentAuthors, error) {
-	// log.Debugf("new array of document authors from `%+v`", authors)
+	// log.Debugf(fmt.Sprintf("new array of document authors from `%+v`", authors)
 	result := make([]*DocumentAuthor, len(authors))
 	for i, author := range authors {
 		switch author := author.(type) {
@@ -462,7 +461,7 @@ func (authors DocumentAuthors) Expand() Attributes {
 			result[key("email", i)] = author.Email
 		}
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("authors: %s", spew.Sdump(result))
 	}
 	return result
@@ -559,7 +558,7 @@ type DocumentRevision struct {
 
 // NewDocumentRevision intializes a new DocumentRevision
 func NewDocumentRevision(revnumber, revdate, revremark interface{}) (*DocumentRevision, error) {
-	// log.Debugf("initializing document revision with revnumber=%v, revdate=%v, revremark=%v", revnumber, revdate, revremark)
+	// log.Debugf(fmt.Sprintf("initializing document revision with revnumber=%v, revdate=%v, revremark=%v", revnumber, revdate, revremark)
 	// remove the "v" prefix and trim spaces
 	var number, date, remark string
 	if revnumber, ok := revnumber.(string); ok {
@@ -609,7 +608,7 @@ func (r *DocumentRevision) Expand() Attributes {
 	if r.Revremark != "" {
 		result["revremark"] = r.Revremark
 	}
-	// log.Debugf("revision: %v", result)
+	// log.Debugf(fmt.Sprintf("revision: %v", result)
 	return result
 }
 
@@ -626,8 +625,8 @@ type AttributeDeclaration struct {
 
 // NewAttributeDeclaration initializes a new AttributeDeclaration with the given name and optional value
 func NewAttributeDeclaration(name string, value interface{}, rawText string) (*AttributeDeclaration, error) {
-	// if log.IsLevelEnabled(log.DebugLevel) {
-	// 	log.Debugf("new attribute declaration: '%s'", spew.Sdump(rawText))
+	// if log.IsLevelEnabled(slog.LevelDebug) {
+	// 	log.Debugf("new attribute declaration: '%s'", spew.Sdump(rawText)
 	// }
 	return &AttributeDeclaration{
 		Name:    name,
@@ -648,7 +647,7 @@ type AttributeReset struct {
 
 // NewAttributeReset initializes a new Document Attribute Resets.
 func NewAttributeReset(attrName string, rawText string) (*AttributeReset, error) {
-	// log.Debugf("new AttributeReset: '%s'", attrName)
+	// log.Debugf(fmt.Sprintf("new AttributeReset: '%s'", attrName)
 	return &AttributeReset{
 		Name:    attrName,
 		rawText: rawText,
@@ -776,7 +775,7 @@ type ListElement interface { // TODO: convert to struct and use as composant in 
 }
 
 func addToListElement(e ListElement, element interface{}) error {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("adding element of type '%T' to '%T'", element, e)
 	}
 	switch element := element.(type) {
@@ -851,7 +850,7 @@ var _ WithElementAddition = &List{}
 
 // AddElement adds the given element `e` in the target list or sublist (depending on its type)
 func (l *List) AddElement(element interface{}) error {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("adding element of type '%T' to list of kind '%s'", element, l.Kind)
 	}
 	switch e := element.(type) {
@@ -899,7 +898,7 @@ type ListElements struct {
 }
 
 func NewListElements(elements []interface{}) (*ListElements, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("initializing new ListElements with \n%s", spew.Sdump(elements...))
 	}
 	elmts := make([]interface{}, 0, len(elements))
@@ -940,8 +939,8 @@ func NewListElements(elements []interface{}) (*ListElements, error) {
 	result := &ListElements{
 		Elements: elmts,
 	}
-	// if log.IsLevelEnabled(log.DebugLevel) {
-	// 	log.Debugf("initialized new ListElements: %s", spew.Sdump(result))
+	// if log.IsLevelEnabled(slog.LevelDebug) {
+	// 	log.Debugf("initialized new ListElements: %s", spew.Sdump(result)
 	// }
 	return result, nil
 }
@@ -983,7 +982,7 @@ var _ WithFootnotes = &ListElements{}
 func (l *ListElements) SubstituteFootnotes(notes *Footnotes) {
 	for _, e := range l.Elements {
 		if e, ok := e.(WithFootnotes); ok {
-			if log.IsLevelEnabled(log.DebugLevel) {
+			if log.DebugEnabled() {
 				log.Debugf("collecting footnotes in element of type '%T'", e)
 			}
 			e.SubstituteFootnotes(notes)
@@ -1191,7 +1190,7 @@ var _ ListElement = &OrderedListElement{}
 
 // NewOrderedListElement initializes a new `orderedListItem` from the given content
 func NewOrderedListElement(prefix OrderedListElementPrefix, content interface{}) (*OrderedListElement, error) {
-	// log.Debugf("new OrderedListElement")
+	// log.Debugf(fmt.Sprintf("new OrderedListElement")
 	return &OrderedListElement{
 		Style: prefix.Style,
 		Elements: []interface{}{
@@ -1323,7 +1322,7 @@ var _ ListElement = &UnorderedListElement{}
 
 // NewUnorderedListElement initializes a new `UnorderedListElement` from the given content
 func NewUnorderedListElement(prefix UnorderedListElementPrefix, checkstyle interface{}, content interface{}) (*UnorderedListElement, error) {
-	// log.Debugf("new UnorderedListElement with %d elements", len(elements))
+	// log.Debugf("new UnorderedListElement with %d elements", len(elements)
 	cs := toCheckStyle(checkstyle)
 	if cs != NoCheck {
 		if p, ok := content.(*Paragraph); ok {
@@ -1368,12 +1367,12 @@ func (e *UnorderedListElement) matchesStyle(other ListElement) bool {
 }
 
 func (e *UnorderedListElement) AdjustStyle(l *List) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("attempt to adjust bulletstyle '%v' compared to\n%s", e.BulletStyle, spew.Sdump(l))
 	}
 	if l != nil && len(l.Elements) > 0 {
 		if o, ok := l.Elements[0].(*UnorderedListElement); ok {
-			if log.IsLevelEnabled(log.DebugLevel) {
+			if log.DebugEnabled() {
 				log.Debugf("adjusting bulletstyle from '%v' to '%v'", e.BulletStyle, o.BulletStyle.next())
 			}
 			e.BulletStyle = o.BulletStyle.next()
@@ -1598,7 +1597,7 @@ type LabeledListElement struct {
 
 // NewLabeledListElement initializes a new LabeledListElement
 func NewLabeledListElement(level int, term, description interface{}) (*LabeledListElement, error) {
-	// log.Debugf("new LabeledListElement")
+	// log.Debugf(fmt.Sprintf("new LabeledListElement")
 	t := []interface{}{
 		term,
 	}
@@ -1742,7 +1741,7 @@ type Paragraph struct {
 
 // NewParagraph initializes a new `Paragraph`
 func NewParagraph(style interface{}, elements ...interface{}) (*Paragraph, error) {
-	// log.Debugf("new paragraph with attributes: '%v'", attributes)
+	// log.Debugf(fmt.Sprintf("new paragraph with attributes: '%v'", attributes)
 	for i, l := range elements {
 		// append `\n` unless the we're on the last element
 		if l, ok := l.(*RawLine); ok && i < len(elements)-1 {
@@ -1889,7 +1888,7 @@ type InternalCrossReference struct {
 
 // NewInternalCrossReference initializes a new `InternalCrossReference` from the given ID
 func NewInternalCrossReference(id, label interface{}) (*InternalCrossReference, error) {
-	// log.Debugf("new InternalCrossReference with ID=%s", id)
+	// log.Debugf(fmt.Sprintf("new InternalCrossReference with ID=%s", id)
 	return &InternalCrossReference{
 		ID:    Reduce(id),
 		Label: Reduce(label),
@@ -1933,7 +1932,7 @@ func NewExternalCrossReference(location *Location, attributes interface{}) (*Ext
 	attrs := toAttributesWithMapping(attributes, map[string]string{
 		AttrPositional1: AttrXRefLabel,
 	})
-	// log.Debugf("new ExternalCrossReference with Location=%v and label='%s' (attrs=%v / %T)", location, label, attributes, attrs[AttrInlineLinkText])
+	// log.Debugf(fmt.Sprintf("new ExternalCrossReference with Location=%v and label='%s' (attrs=%v / %T)", location, label, attributes, attrs[AttrInlineLinkText])
 	return &ExternalCrossReference{
 		Location:   location,
 		Attributes: attrs,
@@ -2145,7 +2144,7 @@ type Footnote struct {
 
 // NewFootnote returns a new Footnote with the given content
 func NewFootnote(ref interface{}, elements []interface{}) (*Footnote, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("new footnote with elements: '%s'", spew.Sdump(elements))
 	}
 	var r string
@@ -2206,9 +2205,7 @@ const (
 
 // Reference adds the given footnote and returns a FootnoteReference in replacement
 func (f *Footnotes) Reference(note *Footnote) *FootnoteReference {
-	if log.IsLevelEnabled(log.DebugLevel) {
-		log.Debug("referencing footnote")
-	}
+	log.Debug("referencing footnote")
 	r := &FootnoteReference{}
 	if len(note.Elements) > 0 {
 		note.ID = f.sequence.nextVal()
@@ -2336,20 +2333,20 @@ func (b *DelimitedBlock) SetElements(elements []interface{}) error {
 		switch b.Kind {
 		case Listing, Literal:
 			// preserve space but discard empty lines
-			// log.Debugf("discarding leading crlf on elements in block of kind '%s'", b.Kind)
+			// log.Debugf(fmt.Sprintf("discarding leading crlf on elements in block of kind '%s'", b.Kind)
 			// discard leading spaces and CR/LF
 			if s, ok := elements[0].(*StringElement); ok {
 				s.Content = strings.TrimLeft(s.Content, "\r\n")
 			}
 		default:
-			// log.Debugf("discarding leading spaces+crlf on elements in block of kind '%s'", b.Kind)
+			// log.Debugf(fmt.Sprintf("discarding leading spaces+crlf on elements in block of kind '%s'", b.Kind)
 			// discard leading spaces and CR/LF
 			if s, ok := elements[0].(*StringElement); ok {
 				s.Content = strings.TrimLeft(s.Content, " \t\r\n")
 			}
 		}
 		// discard trailing spaces and CR/LF
-		// log.Debugf("discarding trailing spaces+crlf on elements in block of kind '%s'", b.Kind)
+		// log.Debugf(fmt.Sprintf("discarding trailing spaces+crlf on elements in block of kind '%s'", b.Kind)
 		if s, ok := elements[len(elements)-1].(*StringElement); ok {
 			s.Content = strings.TrimRight(s.Content, " \t\r\n")
 		}
@@ -2454,7 +2451,7 @@ type Section struct {
 
 // NewSection returns a new Section
 func NewSection(level int, title []interface{}) (*Section, error) {
-	// log.Debugf("new rawsection: '%s' (%d)", title, level)
+	// log.Debugf(fmt.Sprintf("new rawsection: '%s' (%d)", title, level)
 	s := &Section{
 		Level: level,
 	}
@@ -2489,7 +2486,7 @@ func (s *Section) GetTitle() []interface{} {
 
 // SetTitle sets this section's title
 func (s *Section) SetTitle(title []interface{}) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("setting section title: %s", spew.Sdump(title))
 	}
 	// inline ID attribute foud at the end is *moved* at the attributes level of the section
@@ -2558,7 +2555,7 @@ func (s *Section) resolveID(attrs Attributes) (string, error) {
 	if id := s.Attributes.GetAsStringWithDefault(AttrID, ""); id != "" {
 		return id, nil
 	}
-	log.Debugf("resolving section id")
+	log.Debug("resolving section id")
 	prefix := attrs.GetAsStringWithDefault(AttrIDPrefix, DefaultIDPrefix)
 	separator := attrs.GetAsStringWithDefault(AttrIDSeparator, DefaultIDSeparator)
 	id, err := ReplaceNonAlphanumerics(s.Title, prefix, separator)
@@ -2689,7 +2686,7 @@ type SinglelineComment struct {
 
 // NewSinglelineComment initializes a new single line content
 func NewSinglelineComment(content string) (*SinglelineComment, error) {
-	// log.Debugf("initializing a single line comment with content: '%s'", content)
+	// log.Debugf(fmt.Sprintf("initializing a single line comment with content: '%s'", content)
 	return &SinglelineComment{
 		Content: content,
 	}, nil
@@ -2767,7 +2764,7 @@ const (
 
 // NewQuotedText initializes a new `QuotedText` from the given kind and content
 func NewQuotedText(kind QuotedTextKind, elements ...interface{}) (*QuotedText, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("new quoted text: %v %s", kind, spew.Sdump(elements...))
 	}
 	return &QuotedText{
@@ -2808,7 +2805,7 @@ func (t *QuotedText) SetAttributes(attributes Attributes) {
 
 // WithAttributes returns a _new_ QuotedText with the given attributes (with some mapping)
 func (t *QuotedText) WithAttributes(attributes interface{}) (*QuotedText, error) {
-	// log.Debugf("adding attributes on quoted text: %v", attributes)
+	// log.Debugf(fmt.Sprintf("adding attributes on quoted text: %v", attributes)
 	t.Attributes = toAttributesWithMapping(attributes, map[string]string{
 		AttrPositional1: AttrRoles,
 	})
@@ -2821,7 +2818,7 @@ func (t *QuotedText) WithAttributes(attributes interface{}) (*QuotedText, error)
 
 // NewEscapedQuotedText returns a new []interface{} where the nested elements are preserved (ie, substituted as expected)
 func NewEscapedQuotedText(backslashes string, marker string, content interface{}) ([]interface{}, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("new escaped quoted text: %s %s %s", backslashes, marker, spew.Sdump(content))
 	}
 	backslashesStr := Apply(backslashes,
@@ -2970,7 +2967,7 @@ var _ ConditionalInclusion = &IfdefCondition{}
 
 func (c *IfdefCondition) Eval(attributes map[string]interface{}) bool {
 	_, found := attributes[c.Name]
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("eval of IfDef::'%s': %t", c.Name, found)
 	}
 	return found
@@ -3014,9 +3011,7 @@ type IfevalCondition struct {
 }
 
 func NewIfevalCondition(left, right interface{}, operand IfevalOperand) (*IfevalCondition, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
-		log.Debugf("new Ifeval conditional inclusion")
-	}
+	log.Debug("new Ifeval conditional inclusion")
 	return &IfevalCondition{
 		Left:    left,
 		Right:   right,
@@ -3055,7 +3050,7 @@ func (c *IfevalCondition) SingleLineContent() (string, bool) {
 type IfevalOperand func(left, right interface{}) bool
 
 var EqualOperand = func(left, right interface{}) bool {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("comparing %v==%v", left, right)
 	}
 	// comparing strings
@@ -3084,7 +3079,7 @@ func NewEqualOperand() (IfevalOperand, error) {
 }
 
 var NotEqualOperand = func(left, right interface{}) bool {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("comparing %v!=%v", left, right)
 	}
 	// comparing strings
@@ -3113,7 +3108,7 @@ func NewNotEqualOperand() (IfevalOperand, error) {
 }
 
 var LessThanOperand = func(left, right interface{}) bool {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("comparing %v<%v", left, right)
 	}
 	// comparing strings
@@ -3142,7 +3137,7 @@ func NewLessThanOperand() (IfevalOperand, error) {
 }
 
 var LessOrEqualOperand = func(left, right interface{}) bool {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("comparing %v<=%v", left, right)
 	}
 	// comparing strings
@@ -3171,7 +3166,7 @@ func NewLessOrEqualOperand() (IfevalOperand, error) {
 }
 
 var GreaterThanOperand = func(left, right interface{}) bool {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("comparing %v>%v", left, right)
 	}
 	// comparing strings
@@ -3200,7 +3195,7 @@ func NewGreaterThanOperand() (IfevalOperand, error) {
 }
 
 var GreaterOrEqualOperand = func(left, right interface{}) bool {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("comparing %v>=%v", left, right)
 	}
 	// comparing strings
@@ -3341,7 +3336,7 @@ type LineRange struct {
 
 // NewLineRange returns a new line range
 func NewLineRange(start, end int) (LineRange, error) {
-	// log.Debugf("new multiline range: %d..%d", start, end)
+	// log.Debugf(fmt.Sprintf("new multiline range: %d..%d", start, end)
 	return LineRange{
 		StartLine: start,
 		EndLine:   end,
@@ -3401,7 +3396,7 @@ func NewTagRanges(ranges interface{}) TagRanges {
 // Match checks if the given tag matches one of the range
 func (tr TagRanges) Match(line int, currentRanges CurrentRanges) bool {
 	match := false
-	// log.Debugf("checking line %d", line)
+	// log.Debugf(fmt.Sprintf("checking line %d", line)
 
 	// compare with expected tag ranges
 	for _, t := range tr {
@@ -3410,7 +3405,7 @@ func (tr TagRanges) Match(line int, currentRanges CurrentRanges) bool {
 			continue
 		}
 		for n, r := range currentRanges {
-			// log.Debugf("checking if range %s (%v) matches one of %v", n, r, tr)
+			// log.Debugf(fmt.Sprintf("checking if range %s (%v) matches one of %v", n, r, tr)
 			if r.EndLine != -1 {
 				// tag range is closed, skip
 				continue
@@ -3531,7 +3526,7 @@ type Location struct {
 
 // NewLocation return a new location with the given elements
 func NewLocation(scheme interface{}, path []interface{}) (*Location, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("new location: scheme='%s' path='%s", spew.Sdump(scheme), spew.Sdump(path))
 	}
 	s := ""
@@ -3546,7 +3541,7 @@ func NewLocation(scheme interface{}, path []interface{}) (*Location, error) {
 
 func (l *Location) SetPath(path interface{}) {
 	p := Reduce(path)
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("setting path in location: %v", p)
 	}
 	l.Path = p
@@ -3555,7 +3550,7 @@ func (l *Location) SetPath(path interface{}) {
 // SetPathPrefix adds the given prefix to the path if this latter is NOT an absolute
 // path and if there is no defined scheme
 func (l *Location) SetPathPrefix(p interface{}) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("setting path with prefix: '%s' + '%s'", p, spew.Sdump(l.Path))
 	}
 	if p, ok := p.(string); ok && p != "" {
@@ -3570,13 +3565,13 @@ func (l *Location) SetPathPrefix(p interface{}) {
 			}
 		}
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("set path with prefix: '%s'", spew.Sdump(l.Path))
 	}
 }
 
 func (l *Location) TrimAngleBracketSuffix() (bool, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("trimming angle bracket suffix in %s", spew.Sdump(l.Path))
 	}
 	switch p := l.Path.(type) {
@@ -3588,7 +3583,7 @@ func (l *Location) TrimAngleBracketSuffix() (bool, error) {
 	case []interface{}:
 		if c, ok := p[len(p)-1].(*SpecialCharacter); ok && c.Name == ">" {
 			l.Path = Reduce(p[:len(p)-1]) // trim last element
-			if log.IsLevelEnabled(log.DebugLevel) {
+			if log.DebugEnabled() {
 				log.Debugf("trimmed angle bracket suffix in location: %s", spew.Sdump(l))
 			}
 			return true, nil
@@ -3670,7 +3665,7 @@ type SpecialCharacter struct {
 
 // NewSpecialCharacter return a new SpecialCharacter
 func NewSpecialCharacter(name string) (*SpecialCharacter, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("new SpecialCharacter: '%s'", name)
 	}
 	return &SpecialCharacter{
@@ -3727,7 +3722,7 @@ type Table struct {
 }
 
 func NewTable(lines []interface{}) (*Table, error) {
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("new table from %s", spew.Sdump(lines))
 	}
 	if len(lines) == 0 {
@@ -3981,9 +3976,9 @@ func NewTableColumn(multiplier, halign, valign, weight, style interface{}) (*Tab
 		col.Style = ContentStyle(style)
 	}
 
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("new TableColumnDef: multiplier=%v halign=%v valign=%v weight=%v", multiplier, halign, valign, weight)
-		log.Debug(spew.Sdump(col))
+		log.Debugf(spew.Sdump(col))
 	}
 	return col, nil
 }
@@ -4057,7 +4052,7 @@ func (t *Table) Columns() ([]*TableColumn, error) {
 			}
 		}
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("cols: %s", spew.Sdump(result))
 	}
 	return result, nil

@@ -3,9 +3,11 @@ package configuration
 import (
 	"time"
 
-	"github.com/bytesparadise/libasciidoc/pkg/types"
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/davecgh/go-spew/spew"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 // NewConfiguration returns a new configuration
@@ -23,7 +25,7 @@ func NewConfiguration(settings ...Setting) *Configuration {
 	for _, set := range settings {
 		set(config)
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("new configuration: %s", spew.Sdump(config))
 	}
 	return config

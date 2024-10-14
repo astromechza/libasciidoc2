@@ -4,14 +4,16 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/bytesparadise/libasciidoc/pkg/log"
+
 	"github.com/alecthomas/chroma/v2"
 	"github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/alecthomas/chroma/v2/styles"
-	"github.com/bytesparadise/libasciidoc/pkg/types"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/bytesparadise/libasciidoc/pkg/types"
 )
 
 func (r *sgmlRenderer) renderSourceBlock(ctx *context, b *types.DelimitedBlock) (string, error) {
@@ -84,7 +86,7 @@ func (r *sgmlRenderer) renderSourceBlockElements(ctx *context, b *types.Delimite
 	log.Debug("rendering souce block with syntax highlighting")
 	// render with syntax highlight
 	lines := types.SplitElementsPerLine(b.Elements)
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("splitted lines:\n%s", spew.Sdump(lines))
 	}
 	// using github.com/alecthomas/v2 to highlight the content
@@ -140,7 +142,7 @@ func (r *sgmlRenderer) renderSourceBlockElements(ctx *context, b *types.Delimite
 		}
 
 	}
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if log.DebugEnabled() {
 		log.Debugf("source block content:\n%s", result.String())
 	}
 	return result.String(), highlighter, language, nil
